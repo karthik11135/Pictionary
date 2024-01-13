@@ -9,7 +9,7 @@ const LandingPage = () => {
         Pictionary
       </h1>
       <LandingForm />
-      <div className="text-yellow-600 text-red-600 text-purple-600 text-green-600"></div>
+      <div className="text-yellow-600 hidden text-red-600 text-purple-600 text-green-600">dummy</div>
     </div>
   );
 };
