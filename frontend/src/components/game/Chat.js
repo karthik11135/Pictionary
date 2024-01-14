@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 
 const Chat = (props) => {
   const [messages, setMessages] = useState([]);
   const [curMessage, setCurMessage] = useState("");
+  useEffect(() => {
+    props.socket.on("chat", (message) => {
+      console.log(message);
+      setMessages((prev) => {
+        return [message, ...prev];
+      });
+    });
+    return () => {
+      props.socket.off("chat");
+    };
+  }, [props.socket]);
+
   const addMessage = (e) => {
     e.preventDefault();
-    console.log(curMessage);
     if (curMessage === "") return;
-    setMessages((prev) => {
-      return [curMessage, ...prev];
-    });
+    props.socket.emit("chat", curMessage);
     setCurMessage("");
   };
 
@@ -21,9 +30,10 @@ const Chat = (props) => {
       </h2>
       <div className="flex flex-col h-5/6 flex-1">
         <ul className="overflow-scroll mb-2 flex flex-col-reverse grow max-h-full">
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <li
               className={`border-2 text-sm border-theme-color text-green-200 px-1 bg-blue-700`}
+              key={index}
             >
               {message}
             </li>
