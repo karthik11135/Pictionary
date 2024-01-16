@@ -4,17 +4,21 @@ import WhiteBoard from "../game/WhiteBoard";
 import Chat from "../game/Chat";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const GamingPage = () => {
+  const { roomId } = useParams();
   const [messages, setMessages] = useState([]);
-   
   const socket = io("http://127.0.0.1:5000");
   useEffect(() => {
     socket.on("connect", () => {
-      console.log(socket.connected); // x8WIv7-mJelg7on_ALbx
+      console.log(socket.connected); 
     });
-    console.log('ran');
-    // socket.emit("chat", messages[0]);
+    socket.emit('create', roomId)
+    return () => {
+      socket.off('create')
+      socket.off('connect')
+    }
   }, [socket]);
 
   return (
@@ -33,7 +37,8 @@ const GamingPage = () => {
           class={"basis-3/12 bg-shade p-1 flex flex-col rounded border h-3/4"}
           messages={messages}
           setMessages={setMessages}
-          socket = {socket}
+          socket={socket}
+          roomId={roomId}
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 const Chat = (props) => {
   const [messages, setMessages] = useState([]);
   const [curMessage, setCurMessage] = useState("");
+  
   useEffect(() => {
     props.socket.on("chat", (message) => {
       console.log(message);
@@ -19,7 +20,7 @@ const Chat = (props) => {
   const addMessage = (e) => {
     e.preventDefault();
     if (curMessage === "") return;
-    props.socket.emit("chat", curMessage);
+    props.socket.emit("chat", [curMessage, props.roomId]);
     setCurMessage("");
   };
 
