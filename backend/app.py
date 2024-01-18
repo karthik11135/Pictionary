@@ -22,6 +22,12 @@ def handle_message(data):
     print(data)
     [message, roomId] = data
     emit('chat', message, to=roomId)
+
+@socketio.on('draw')
+def draw_canvas(data):
+    [sketch, roomId] = data
+    print(sketch)
+    emit('draw', sketch, to=roomId)
     
 @socketio.on('connect')
 def handle_connect():

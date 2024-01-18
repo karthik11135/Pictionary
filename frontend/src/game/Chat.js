@@ -4,7 +4,7 @@ import { useState } from "react";
 const Chat = (props) => {
   const [messages, setMessages] = useState([]);
   const [curMessage, setCurMessage] = useState("");
-  
+
   useEffect(() => {
     props.socket.on("chat", (message) => {
       console.log(message);
