@@ -9,12 +9,9 @@ CORS(app)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-@app.route("/")
-def hello():
-    return "<h2>ye ccctherehnnn </h2>"
-
 @socketio.on('create')
-def creat_room(roomId):
+def create_room(data):
+    [roomId, player] = data
     join_room(roomId)
 
 @socketio.on('chat')
@@ -28,6 +25,10 @@ def draw_canvas(data):
     [sketch, roomId] = data
     print(sketch)
     emit('draw', sketch, to=roomId)
+
+@socketio.on("members")
+def send_members():
+   pass
     
 @socketio.on('connect')
 def handle_connect():

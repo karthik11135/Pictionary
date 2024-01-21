@@ -52,7 +52,7 @@ const LandingForm = () => {
       </div>
       <Link
         type="submit"
-        to = {'/room/' + roomId}
+        to = {'/room/' + roomId + "/" + name}
         className="text-blue-600 font-bold border-blue-200 focus:ring-4 focus:outline-none  bg-none  border-2 font-medium rounded-lg text-sm w-full sm:w-auto px-7 py-2 text-center dark:bg-none"
       >
         Let's Play

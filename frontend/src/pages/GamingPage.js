@@ -1,6 +1,5 @@
 import React from "react";
 import Profiles from "../game/Profiles";
-import WhiteBoard from "../game/WhiteBoard";
 import Chat from "../game/Chat";
 import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
@@ -9,13 +8,14 @@ import Board from "../game/Board";
 
 const GamingPage = () => {
   const { roomId } = useParams();
+  const { player } = useParams();
   const [messages, setMessages] = useState([]);
   const socket = io("http://127.0.0.1:5000");
   useEffect(() => {
     socket.on("connect", () => {
-      // console.log(socket.connected);
+      console.log(socket.connected);
     });
-    socket.emit("create", roomId);
+    socket.emit("create", [roomId, player]);
     return () => {
       socket.off("create");
       socket.off("connect");
@@ -30,15 +30,14 @@ const GamingPage = () => {
       <div className="flex h-100 gap-4 h-5/6 mt-auto mx-2 font-normal">
         <Profiles
           class={
-            "basis-2/12  rounded bg-shade flex-row p-2 overflow-hidden border"
+            "basis-2/12 rounded bg-shade flex-row p-2 overflow-hidden border"
           }
         />
-        {/* <WhiteBoard
-          class={"basis-7/12 rounded flex flex-col border"}
-          socket={socket}
+        <Board
           roomId={roomId}
-        /> */}
-        <Board roomId={roomId} class={"basis-7/12 rounded flex flex-col border"}/>
+          player = {player}
+          class={"basis-7/12  border rounded flex flex-col "}
+        />
         <Chat
           class={"basis-3/12 bg-shade p-1 flex flex-col rounded border h-3/4"}
           messages={messages}
