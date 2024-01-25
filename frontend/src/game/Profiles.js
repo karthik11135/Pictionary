@@ -1,8 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
+import { useEffect } from "react";
 
 const Profiles = (props) => {
+
   const colors = ["purple", "yellow", "green", "blue", "red"];
-  const players = ["karthik", "rahul", "sandeep", "emily", "racheal", "kenny"];
+  const [people, setPeople] = useState([]);
+  
+  useEffect(() => {
+    props.socket.on('all-members', (data) => {
+      const newPeople = data;
+      setPeople(newPeople)
+    }) 
+    return () => {
+      props.socket.off('all-members')
+    }
+  }, [props.socket])
 
   return (
     <div className={props.class}>
@@ -10,7 +22,7 @@ const Profiles = (props) => {
         Players
       </h2>
       <ul className="overflow-scroll h-full mb-2">
-        {players.map((player, index) => {
+        {people.map((player, index) => {
           return (
             <li
               className={`p-2 bg-theme-color text-${

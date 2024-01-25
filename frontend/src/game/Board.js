@@ -142,8 +142,8 @@ const Board = (props) => {
       drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
     };
 
-    socketRef.current = io.connect("http://127.0.0.1:5000");
-    socketRef.current.emit("create", [props.roomId, props.player]);
+    socketRef.current = props.socket;
+    // socketRef.current.emit("create", [props.roomId, props.player]);
     socketRef.current.on("draw", onDrawingEvent);
   }, []);
 

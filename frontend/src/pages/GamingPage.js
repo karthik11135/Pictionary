@@ -16,7 +16,10 @@ const GamingPage = () => {
       console.log(socket.connected);
     });
     socket.emit("create", [roomId, player]);
+    // socket.emit('all-members', roomId)
+
     return () => {
+      socket.emit("disconnect-user", [roomId, player])
       socket.off("create");
       socket.off("connect");
     };
@@ -32,11 +35,14 @@ const GamingPage = () => {
           class={
             "basis-2/12 rounded bg-shade flex-row p-2 overflow-hidden border"
           }
+          socket = {socket}
+          roomId={roomId}
         />
         <Board
           roomId={roomId}
           player = {player}
           class={"basis-7/12  border rounded flex flex-col "}
+          socket = {socket}
         />
         <Chat
           class={"basis-3/12 bg-shade p-1 flex flex-col rounded border h-3/4"}
