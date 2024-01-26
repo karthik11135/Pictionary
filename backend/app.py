@@ -14,7 +14,8 @@ client_info = {}
 @socketio.on('chat')
 def handle_message(data):
     [message, roomId] = data
-    emit('chat', message, to=roomId)
+    message_with_player = client_info[roomId][request.sid] + ": " + message 
+    emit('chat', message_with_player, to=roomId)
 
 @socketio.on('draw')
 def draw_canvas(data):
