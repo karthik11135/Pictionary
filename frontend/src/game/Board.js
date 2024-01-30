@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import "../styles/board.css";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -8,6 +8,7 @@ const Board = (props) => {
   const canvasRef = useRef(null);
   const colorsRef = useRef(null);
   const socketRef = useRef();
+  const [canDraw, setCanDraw] = useState(false);
   // const canvasParent = useRef();
   const current = {
     color: "white",
@@ -18,7 +19,7 @@ const Board = (props) => {
   };
   const onWeightUpdate = (weight) => {
     current.weight = weight;
-  }
+  };
   const clearCanvas = () => {
     canvasRef.current
       .getContext("2d")
@@ -26,40 +27,53 @@ const Board = (props) => {
   };
 
   useEffect(() => {
-    // --------------- getContext() method returns a drawing context on the canvas-----
+    props.socket.on("game_started", () => {
+      console.log("game_started");
+      setCanDraw(false);
+    });
+    props.socket.on("game_player", () => {
+      console.log("gameplayer");
+      setCanDraw(true);
+    });
+    return () => {
+      props.socket.off("game_started");
+      props.socket.off("game_player");
+    };
+  }, []);
 
+
+
+  useEffect(() => {
     const canvas = canvasRef.current;
-    // const test = colorsRef.current;
     const context = canvas.getContext("2d");
     let drawing = false;
 
-    // ------------------------------- create the drawing ----------------------------
-
     const drawLine = (x0, y0, x1, y1, color, emit) => {
-      context.beginPath();
-      context.moveTo(x0, y0);
-      context.lineTo(x1, y1);
-      context.strokeStyle = color;
-      context.lineWidth = current.weight;
-      context.stroke();
-      context.closePath();
+      // if (canDraw) {
+        context.beginPath();
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.strokeStyle = color;
+        context.lineWidth = current.weight;
+        context.stroke();
+        context.closePath();
 
-      if (!emit) {
-        return;
-      }
-      const w = canvas.width;
-      const h = canvas.height;
-
-      socketRef.current.emit("draw", [
-        {
-          x0: x0 / w,
-          y0: y0 / h,
-          x1: x1 / w,
-          y1: y1 / h,
-          color,
-        },
-        props.roomId,
-      ]);
+        if (!emit) {
+          return;
+        }
+        const w = canvas.width;
+        const h = canvas.height;
+        socketRef.current.emit("draw", [
+          {
+            x0: x0 / w,
+            y0: y0 / h,
+            x1: x1 / w,
+            y1: y1 / h,
+            color,
+          },
+          props.roomId,
+        ]);
+      // }
     };
 
     // ---------------- mouse movement --------------------------------------
@@ -111,13 +125,14 @@ const Board = (props) => {
         }
       };
     };
-
     // -----------------add event listeners to our canvas ----------------------
 
+    if(canDraw) {
     canvas.addEventListener("mousedown", onMouseDown, false);
     canvas.addEventListener("mouseup", onMouseUp, false);
     canvas.addEventListener("mouseout", onMouseUp, false);
     canvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
+    }
 
     // Touch support for mobile devices
     canvas.addEventListener("touchstart", onMouseDown, false);
@@ -143,25 +158,25 @@ const Board = (props) => {
     };
 
     socketRef.current = props.socket;
-    // socketRef.current.emit("create", [props.roomId, props.player]);
     socketRef.current.on("draw", onDrawingEvent);
-  }, []);
+  }, [props.socket, canDraw]);
 
   // ------------- The Canvas and color elements --------------------------
 
   return (
     <div className={props.class}>
       <div className="flex-grow canvas-parent">
-        <canvas
-          ref={canvasRef}
-        />
+        <canvas ref={canvasRef} />
       </div>
 
-      <div ref={colorsRef} className="flex">
-        <WhiteBoardOptions setColor={onColorUpdate} setFontWeight={onWeightUpdate}/>
+      <div ref={colorsRef} className="flex border-t-2">
+        <WhiteBoardOptions
+          setColor={onColorUpdate}
+          setFontWeight={onWeightUpdate}
+        />
         <div
           onClick={clearCanvas}
-          className="p-2 bg-yellow-200 cursor-pointer ms-auto "
+          className="p-1 bg-yellow-200 cursor-pointer ms-auto "
         >
           <RiDeleteBin6Line size="30" />
         </div>

@@ -4,6 +4,24 @@ import { useState } from "react";
 const Chat = (props) => {
   const [messages, setMessages] = useState([]);
   const [curMessage, setCurMessage] = useState("");
+  const [messageStyle, setMessageStyle] = useState("bg-blue-700")
+  const [wordIsCorrect, setWordIsCorrect] = useState(false)
+  const [canMessage, setCanMessage] = useState(false)
+
+  useEffect(() => {
+    props.socket.on("game_started", () => {
+      console.log("game_started");
+      setCanMessage(false);
+    });
+    props.socket.on("game_player", () => {
+      console.log("gameplayer");
+      setCanMessage(true);
+    });
+    return () => {
+      props.socket.off("game_started");
+      props.socket.off("game_player");
+    };
+  }, []);
 
   useEffect(() => {
     props.socket.on("chat", (message) => {
@@ -12,6 +30,9 @@ const Chat = (props) => {
         return [message, ...prev];
       });
     });
+    props.socket.on("word_is_correct", (data) => {
+      setMessageStyle("bg-green-700")
+    })
     return () => {
       props.socket.off("chat");
     };
@@ -21,6 +42,7 @@ const Chat = (props) => {
     e.preventDefault();
     if (curMessage === "") return;
     props.socket.emit("chat", [curMessage, props.roomId]);
+    props.socket.emit('guess_word', [curMessage, props.roomId])
     setCurMessage("");
   };
 
@@ -33,14 +55,14 @@ const Chat = (props) => {
         <ul className="overflow-scroll mb-2 flex flex-col-reverse grow max-h-full">
           {messages.map((message, index) => (
             <li
-              className={`border-2 text-sm border-theme-color text-green-200 px-1 bg-blue-700`}
+              className={`rounded m-0.5 text-sm border-theme-color ${messageStyle} px-1 text-green-300`}
               key={index}
             >
               {message}
             </li>
           ))}
         </ul>
-        <form className="flex grow-0 align-bottom" onSubmit={addMessage}>
+    {!canMessage && <form className="flex grow-0 align-bottom" onSubmit={addMessage}>
           <input
             type="Text"
             value={curMessage}
@@ -51,7 +73,7 @@ const Chat = (props) => {
             className="peer h-full w-full    bg-transparent bg-white px-1 py-2 font-sans text-sm font-normal text-blue-gray-700  shadow-lg shadow-gray-900/5 outline outline-0 ring-4 ring-transparent transition-all placeholder:text-gray-500 "
           />
           <button className="bg-theme-color px-2 py-1 text-bluish">Send</button>
-        </form>
+        </form>}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 
 const WhiteBoardOptions = (props) => {
   return (
-    <nav className="border w-full">
+    <nav className=" w-full">
       <ul className="flex gap-5 p-2">
         <li className="flex text-slate-200 gap-2">
           Color

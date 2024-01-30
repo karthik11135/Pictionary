@@ -5,47 +5,57 @@ import { io } from "socket.io-client";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Board from "../game/Board";
+import GameStats from "../game/GameStats";
 
 const GamingPage = () => {
   const { roomId } = useParams();
   const { player } = useParams();
   const [messages, setMessages] = useState([]);
+  const [gamePlayer, setGamePlayer] = useState(false);
   const socket = io("http://127.0.0.1:5000");
+
   useEffect(() => {
     socket.on("connect", () => {
       console.log(socket.connected);
+      socket.emit("create", [roomId, player]);
     });
-    socket.emit("create", [roomId, player]);
-    // socket.emit('all-members', roomId)
-
+    console.log(gamePlayer)
     return () => {
-      socket.emit("disconnect-user", [roomId, player])
+      socket.emit("disconnect-user", [roomId, player]);
       socket.off("create");
       socket.off("connect");
     };
   }, [socket]);
 
   return (
-    <div className="border-2 bg-theme-color h-screen">
-      <h1 className="text-2xl text-blue-600 mx-auto text-center font-black border-2 p-2 font-variety mb-10 ">
+    <div className=" bg-theme-color h-screen">
+      <h1 className="text-2xl text-blue-600 mx-auto text-center font-black  p-2 font-variety">
         Pictionary
       </h1>
       <div className="flex h-100 gap-4 h-5/6 mt-auto mx-2 font-normal">
-        <Profiles
-          class={
-            "basis-2/12 rounded bg-shade flex-row p-2 overflow-hidden border"
-          }
-          socket = {socket}
-          roomId={roomId}
-        />
+        <div className="basis-2/12 flex flex-col">
+          <Profiles
+            class={
+              "rounded basis-7/12 bg-shade flex-row p-2 overflow-hidden border"
+            }
+            socket={socket}
+            roomId={roomId}
+          />
+          <GameStats
+            socket={socket}
+            roomId={roomId}
+            setGamePlayer={setGamePlayer}
+          />
+        </div>
         <Board
           roomId={roomId}
-          player = {player}
+          player={player}
           class={"basis-7/12  border rounded flex flex-col "}
-          socket = {socket}
+          socket={socket}
+          gamePlayer={gamePlayer}
         />
         <Chat
-          class={"basis-3/12 bg-shade p-1 flex flex-col rounded border h-3/4"}
+          class={"basis-3/12 bg-shade p-1 flex flex-col rounded border"}
           messages={messages}
           setMessages={setMessages}
           socket={socket}
