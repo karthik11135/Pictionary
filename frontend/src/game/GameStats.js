@@ -18,6 +18,10 @@ const GameStats = (props) => {
         setRandomWord(data + ' is drawing')
     })
 
+    props.socket.on('game_continues', (data) => {
+      props.socket.emit('start_game', props.roomId)
+    })
+
     return () => {
         props.socket.off('game_player')
         props.socket.off('game_started')

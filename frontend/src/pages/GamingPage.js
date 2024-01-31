@@ -6,20 +6,25 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Board from "../game/Board";
 import GameStats from "../game/GameStats";
+import { useNavigate } from "react-router-dom";
+
 
 const GamingPage = () => {
+  const navigate = useNavigate()
   const { roomId } = useParams();
   const { player } = useParams();
   const [messages, setMessages] = useState([]);
   const [gamePlayer, setGamePlayer] = useState(false);
   const socket = io("http://127.0.0.1:5000");
-
   useEffect(() => {
     socket.on("connect", () => {
       console.log(socket.connected);
       socket.emit("create", [roomId, player]);
     });
-    console.log(gamePlayer)
+    socket.on('redirect', () => {
+      navigate(`/${roomId}/roomIsFull`);
+    })
+    console.log(gamePlayer);
     return () => {
       socket.emit("disconnect-user", [roomId, player]);
       socket.off("create");
@@ -29,7 +34,7 @@ const GamingPage = () => {
 
   return (
     <div className=" bg-theme-color h-screen">
-      <h1 className="text-2xl text-blue-600 mx-auto text-center font-black  p-2 font-variety">
+      <h1 className="text-2xl cursor-pointer text-blue-600 mx-auto text-center font-black  p-2 font-variety">
         Pictionary
       </h1>
       <div className="flex h-100 gap-4 h-5/6 mt-auto mx-2 font-normal">
