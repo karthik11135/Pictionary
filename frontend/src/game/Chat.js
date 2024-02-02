@@ -6,16 +6,23 @@ const Chat = (props) => {
   const [curMessage, setCurMessage] = useState("");
   const [messageStyle, setMessageStyle] = useState("bg-blue-700")
   const [wordIsCorrect, setWordIsCorrect] = useState(false)
-  const [canMessage, setCanMessage] = useState(false)
+  const [canMessage, setCanMessage] = useState(true)
 
   useEffect(() => {
     props.socket.on("game_started", () => {
       console.log("game_started");
-      setCanMessage(false);
+      setCanMessage(true);
+      setMessageStyle("bg-blue-700");
+      setMessages((prev) => {
+        return []
+      })
     });
     props.socket.on("game_player", () => {
       console.log("gameplayer");
-      setCanMessage(true);
+      setCanMessage(false);
+      setMessages(prev => {
+        return []
+      })
     });
     return () => {
       props.socket.off("game_started");
@@ -41,8 +48,8 @@ const Chat = (props) => {
   const addMessage = (e) => {
     e.preventDefault();
     if (curMessage === "") return;
-    props.socket.emit("chat", [curMessage, props.roomId]);
     props.socket.emit('guess_word', [curMessage, props.roomId])
+    props.socket.emit("chat", [curMessage, props.roomId]);
     setCurMessage("");
   };
 
@@ -62,7 +69,7 @@ const Chat = (props) => {
             </li>
           ))}
         </ul>
-    {!canMessage && <form className="flex grow-0 align-bottom" onSubmit={addMessage}>
+    {canMessage && <form className="flex grow-0 align-bottom" onSubmit={addMessage}>
           <input
             type="Text"
             value={curMessage}

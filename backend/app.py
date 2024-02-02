@@ -21,6 +21,8 @@ def handle_message(data):
         emit('chat', message_with_player, to=request.sid)
     else:
         emit('chat', message_with_player, to=roomId)
+        current_artist = list(client_info[roomId].keys())[room_protagonist[roomId]]
+        emit('chat', message_with_player, current_artist)
     print(client_info)
 
 @socketio.on('draw')
@@ -34,6 +36,7 @@ def start_the_game(roomId):
     if roomId not in room_protagonist:
         room_protagonist[roomId] = 0
     if room_protagonist[roomId] >= len(list(client_info[roomId].keys())):
+        emit('game_finished', '_', to=roomId)
         return
     current_aritist = list(client_info[roomId].keys())[room_protagonist[roomId]]
     emit('game_started', client_info[roomId][current_aritist], to=roomId)
@@ -44,7 +47,6 @@ def start_the_game(roomId):
     
 @socketio.on('guess_word')
 def guess_the_word(data):
-    # global predict_word_flag
     [word, roomId] = data
     if client_guess[roomId][request.sid] == True or (roomId in word_of_room.keys() and word == word_of_room[roomId]):
         emit('word_is_correct', '_', to=request.sid)
@@ -55,7 +57,6 @@ def guess_the_word(data):
             for id, bin in client_guess[roomId].items():
                 client_guess[roomId][id] = False
             emit('game_continues', '_', to=request.sid)
-        # print(client_guess[roomId])
     else:
         client_guess[roomId][request.sid] = False
         print('user stays in same room')
@@ -86,4 +87,3 @@ def handle_disconnect():
 
 if __name__ == '__main__':
     socketio.run(app, debug=True)
-

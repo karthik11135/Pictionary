@@ -8,7 +8,6 @@ import Board from "../game/Board";
 import GameStats from "../game/GameStats";
 import { useNavigate } from "react-router-dom";
 
-
 const GamingPage = () => {
   const navigate = useNavigate()
   const { roomId } = useParams();

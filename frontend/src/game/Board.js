@@ -25,14 +25,13 @@ const Board = (props) => {
       .getContext("2d")
       .clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
   };
-
   useEffect(() => {
     props.socket.on("game_started", () => {
-      console.log("game_started");
+      console.log("i cannot draw");
       setCanDraw(false);
     });
     props.socket.on("game_player", () => {
-      console.log("gameplayer");
+      console.log("i can draw");
       setCanDraw(true);
     });
     return () => {
@@ -41,43 +40,35 @@ const Board = (props) => {
     };
   }, []);
 
-
-
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
     let drawing = false;
-
     const drawLine = (x0, y0, x1, y1, color, emit) => {
-      // if (canDraw) {
-        context.beginPath();
-        context.moveTo(x0, y0);
-        context.lineTo(x1, y1);
-        context.strokeStyle = color;
-        context.lineWidth = current.weight;
-        context.stroke();
-        context.closePath();
+      context.beginPath();
+      context.moveTo(x0, y0);
+      context.lineTo(x1, y1);
+      context.strokeStyle = color;
+      context.lineWidth = current.weight;
+      context.stroke();
+      context.closePath();
 
-        if (!emit) {
-          return;
-        }
-        const w = canvas.width;
-        const h = canvas.height;
-        socketRef.current.emit("draw", [
-          {
-            x0: x0 / w,
-            y0: y0 / h,
-            x1: x1 / w,
-            y1: y1 / h,
-            color,
-          },
-          props.roomId,
-        ]);
-      // }
+      if (!emit) {
+        return;
+      }
+      const w = canvas.width;
+      const h = canvas.height;
+      socketRef.current.emit("draw", [
+        {
+          x0: x0 / w,
+          y0: y0 / h,
+          x1: x1 / w,
+          y1: y1 / h,
+          color,
+        },
+        props.roomId,
+      ]);
     };
-
-    // ---------------- mouse movement --------------------------------------
-
     const getMouseCoordinates = (e) => {
       const canvas = canvasRef.current;
       const boundingRect = canvas.getBoundingClientRect();
@@ -111,9 +102,6 @@ const Board = (props) => {
       const { x, y } = getMouseCoordinates(e);
       drawLine(current.x, current.y, x, y, current.color, true);
     };
-
-    // ----------- limit the number of events per second -----------------------
-
     const throttle = (callback, delay) => {
       let previousCall = new Date().getTime();
       return function () {
@@ -125,13 +113,11 @@ const Board = (props) => {
         }
       };
     };
-    // -----------------add event listeners to our canvas ----------------------
-
-    if(canDraw) {
-    canvas.addEventListener("mousedown", onMouseDown, false);
-    canvas.addEventListener("mouseup", onMouseUp, false);
-    canvas.addEventListener("mouseout", onMouseUp, false);
-    canvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
+    if (canDraw) {
+      canvas.addEventListener("mousedown", onMouseDown, false);
+      canvas.addEventListener("mouseup", onMouseUp, false);
+      canvas.addEventListener("mouseout", onMouseUp, false);
+      canvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
     }
 
     // Touch support for mobile devices
@@ -159,6 +145,17 @@ const Board = (props) => {
 
     socketRef.current = props.socket;
     socketRef.current.on("draw", onDrawingEvent);
+    return () => {
+      canvas.removeEventListener("mousedown", onMouseDown, false);
+      canvas.removeEventListener("mouseup", onMouseUp, false);
+      canvas.removeEventListener("mouseout", onMouseUp, false);
+      canvas.removeEventListener("mousemove", throttle(onMouseMove, 10), false);
+
+      canvas.removeEventListener("touchstart", onMouseDown, false);
+      canvas.removeEventListener("touchend", onMouseUp, false);
+      canvas.removeEventListener("touchcancel", onMouseUp, false);
+      canvas.removeEventListener("touchmove", throttle(onMouseMove, 10), false);
+    };
   }, [props.socket, canDraw]);
 
   // ------------- The Canvas and color elements --------------------------
@@ -169,7 +166,7 @@ const Board = (props) => {
         <canvas ref={canvasRef} />
       </div>
 
-      <div ref={colorsRef} className="flex border-t-2">
+      <div ref={colorsRef} className="flex border-t-2 cursor-pointer">
         <WhiteBoardOptions
           setColor={onColorUpdate}
           setFontWeight={onWeightUpdate}
@@ -177,6 +174,7 @@ const Board = (props) => {
         <div
           onClick={clearCanvas}
           className="p-1 bg-yellow-200 cursor-pointer ms-auto "
+          onC
         >
           <RiDeleteBin6Line size="30" />
         </div>

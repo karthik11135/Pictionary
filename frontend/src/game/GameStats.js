@@ -5,37 +5,41 @@ const GameStats = (props) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
   const [counter, setCounter] = useState(4);
-  const [randomWord, setRandomWord] = useState("*****")
+  const [randomWord, setRandomWord] = useState("*****");
 
   useEffect(() => {
-    props.socket.on('game_player', (data) => {
-        setGameStarted(true)
-        setRandomWord(data)
-    })
+    props.socket.on("game_player", (data) => {
+      setGameStarted(true);
+      setRandomWord(data);
+    });
 
-    props.socket.on('game_started', (data) => {
-        setGameStarted(true)
-        setRandomWord(data + ' is drawing')
-    })
+    props.socket.on("game_started", (data) => {
+      setGameStarted(true);
+      setRandomWord(data + " is drawing");
+    });
 
-    props.socket.on('game_continues', (data) => {
-      props.socket.emit('start_game', props.roomId)
-    })
+    props.socket.on("game_continues", (data) => {
+      props.socket.emit("start_game", props.roomId);
+    });
+
+    props.socket.on("game_finished", () => {
+      setGameFinished(true);
+    });
 
     return () => {
-        props.socket.off('game_player')
-        props.socket.off('game_started')
-    }
-  }, [props.socket])
+      props.socket.off("game_player");
+      props.socket.off("game_started");
+    };
+  }, [props.socket]);
 
   const gameStartHandler = () => {
     setGameStarted(true);
-    props.socket.emit('start_game', props.roomId);
-  }
+    props.socket.emit("start_game", props.roomId);
+  };
 
   return (
     <div className="basis-5/12 font-variety overflow-scroll">
-      {!gameStarted && (
+      {!gameStarted && !gameFinished && (
         <button
           onClick={gameStartHandler}
           className="px-2 m-2 mx-2 py-0.5 hover:text-green-700 text-lg cursor-pointer font-black text-blue-600 border-yellow-800  rounded-lg inline-block border"
@@ -43,12 +47,10 @@ const GameStats = (props) => {
           Start the game
         </button>
       )}
-      {gameStarted && (
-        <h2 className="font-black font-variety text-bluish">
-            {randomWord}
-        </h2>
+      {gameStarted && !gameFinished && (
+        <h2 className="font-black font-variety text-bluish">{randomWord}</h2>
       )}
-      {gameStarted && (
+      {gameStarted && !gameFinished && (
         <div className="p-2 rounded font-black text-bluish bg-slate-200 text-center m-3">
           <h3>Timer</h3>
           <p>{counter}</p>
