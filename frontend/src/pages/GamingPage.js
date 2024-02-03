@@ -7,7 +7,6 @@ import { useParams } from "react-router-dom";
 import Board from "../game/Board";
 import GameStats from "../game/GameStats";
 import { useNavigate } from "react-router-dom";
-import GameOverCard from "../game/GameOverCard";
 
 const GamingPage = () => {
   const navigate = useNavigate();
