@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, useState } from "react";
-import io from "socket.io-client";
 import "../styles/board.css";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import WhiteBoardOptions from "./WhiteBoardOptions";

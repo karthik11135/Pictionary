@@ -5,7 +5,6 @@ const Chat = (props) => {
   const [messages, setMessages] = useState([]);
   const [curMessage, setCurMessage] = useState("");
   const [messageStyle, setMessageStyle] = useState("bg-blue-700")
-  const [wordIsCorrect, setWordIsCorrect] = useState(false)
   const [canMessage, setCanMessage] = useState(true)
 
   useEffect(() => {
@@ -55,7 +54,7 @@ const Chat = (props) => {
 
   return (
     <div className={props.class}>
-      <h2 className="text-2xl mb-3 font-variety text-center text-blue-600 font-black ">
+      <h2 className="text-2xl mb-3 font-variety text-center text-blue-600 font-black">
         Chat
       </h2>
       <div className="flex flex-col h-5/6 flex-1">

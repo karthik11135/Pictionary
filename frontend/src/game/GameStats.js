@@ -1,11 +1,15 @@
 import React, { useEffect } from "react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import GameOverCard from "./GameOverCard";
+import useInterval from "../hooks/useInterval";
 
 const GameStats = (props) => {
   const [gameStarted, setGameStarted] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
-  const [counter, setCounter] = useState(4);
+  const [counter, setCounter] = useState(5);
   const [randomWord, setRandomWord] = useState("*****");
+  const [names, setNames] = useState([])
+  const [scores, setScores] = useState([])
 
   useEffect(() => {
     props.socket.on("game_player", (data) => {
@@ -22,15 +26,20 @@ const GameStats = (props) => {
       props.socket.emit("start_game", props.roomId);
     });
 
-    props.socket.on("game_finished", () => {
+    props.socket.on("game_finished", (data) => {
+      console.log(data)
+      setNames(data.player_names)
+      setScores(data.player_scores)
       setGameFinished(true);
     });
 
     return () => {
       props.socket.off("game_player");
       props.socket.off("game_started");
+      props.socket.off("game-continues");
+      props.socket.off("game_finished");
     };
-  }, [props.socket]);
+  }, [props.socket, counter]);
 
   const gameStartHandler = () => {
     setGameStarted(true);
@@ -48,47 +57,9 @@ const GameStats = (props) => {
         </button>
       )}
       {gameStarted && !gameFinished && (
-        <h2 className="font-black font-variety text-bluish">{randomWord}</h2>
+        <h2 className="font-black font-variety p-2 text-center text-lg m-2 rounded-md text-bluish">{randomWord}</h2>
       )}
-      {gameStarted && !gameFinished && (
-        <div className="p-2 rounded font-black text-bluish bg-slate-200 text-center m-3">
-          <h3>Timer</h3>
-          <p>{counter}</p>
-        </div>
-      )}
-      {gameFinished && (
-        <>
-          <div className="p-2 rounded-lg bg-slate-200 text-center m-3 overflow-scroll h-3/4">
-            <h3 className="text-lg underline pb-1 mb-1 text-blue-600 font-black">
-              Scoreboard
-            </h3>
-            <p>
-              Karthik - <span>200 </span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-            <p>
-              Ch - <span>100</span>
-            </p>
-          </div>
-        </>
-      )}
+      {gameFinished && <GameOverCard names={names} scores={scores}/>}
     </div>
   );
 };
